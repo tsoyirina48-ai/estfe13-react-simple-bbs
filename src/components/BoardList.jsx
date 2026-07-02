@@ -1,8 +1,27 @@
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import axios from "axios";
+
 
 export default function BoardList(){
+    const simpleTest = () => {
+        axios
+  .get("https://localhost:3000/", {})
+    
+  .then((response) => {
+    console.log(response.data);
+    console.log("response.data");
+  })
+  .catch((error) => {
+    console.error(error);
+  })
+  .finally(() => {
+    console.log("Request completed");
+  });
+}
+
+
     return(
         <>
             <Table striped bordered hover>
@@ -12,6 +31,7 @@ export default function BoardList(){
           <th>번호</th>
           <th>제목</th>
           <th>작성자</th>
+          <th>작성일</th>
         </tr>
       </thead>
       <tbody>
@@ -36,7 +56,7 @@ export default function BoardList(){
      
     </Table>
             <div className="d-flex justify-content-end">
-                <Button variant="primary">Primary</Button>
+                <Button variant="primary" onClick={simpleTest}>Primary</Button>
                 <Button variant="secondary">Secondary</Button>
                 <Button variant="danger">Danger</Button>
             </div>
