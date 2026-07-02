@@ -2,25 +2,38 @@ import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import axios from "axios";
+import { useState, useEffect } from 'react';
 
-
-export default function BoardList(){
-    const simpleTest = () => {
-        axios
-  .get("https://localhost:3000/", {})
-    
-  .then((response) => {
-    console.log(response.data);
-    console.log("response.data");
-  })
-  .catch((error) => {
-    console.error(error);
-  })
-  .finally(() => {
-    console.log("Request completed");
-  });
+function Board({ data }){
+    return (
+    <tr>
+      <td>
+        <Form.Check />
+      </td>
+      <td>{data.id}</td>
+      <td>{data.title}</td>
+      <td>{data.writer}</td>
+      <td>{data.date}</td>
+    </tr>
+    );
 }
+export default function BoardList() {
+   const [list, setList] = useState([]);
 
+   useEffect(() => {
+
+   axios.get("http://localhost:3000/list", {})
+   .then(response => {
+    console.log(response.data);
+    setList(response.data);
+   })
+   .catch(error => {
+    console.error( error );
+   })
+   .finally(() => {
+        console.log("요청완료");
+    });
+},[]);
 
     return(
         <>
@@ -34,31 +47,19 @@ export default function BoardList(){
           <th>작성일</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>Mark</td>
-          <td>Otto</td>
-          <td>@mdo</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Jacob</td>
-          <td>Thornton</td>
-          <td>@fat</td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td colSpan={2}>Larry the Bird</td>
-          <td>@twitter</td>
-        </tr>
-      </tbody>
+        <tbody>
+            {
+                list.map((item, idx) => (
+                    <Board key={idx}data={item} />
+                ))
+            }
+        </tbody>
      
     </Table>
             <div className="d-flex justify-content-end">
-                <Button variant="primary" onClick={simpleTest}>Primary</Button>
-                <Button variant="secondary">Secondary</Button>
-                <Button variant="danger">Danger</Button>
+                <Button variant="primary">입력</Button>
+                <Button variant="secondary">수정</Button>
+                <Button variant="danger">삭제</Button>
             </div>
         </>
     );

@@ -1,12 +1,32 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import { useState } from 'react';
+import axios from "axios";
 
 export default function Write() {
-
-    
+     const onSubmit = (e) => {
+        e.preventDefault();
+        // Handle form submission logic here
+     };
+     axios
+  .post("https://jsonplaceholder.typicode.com/posts", {
+    title: "foo",
+    body: "bar",
+    userId: 1,
+  })
+  .then((response) => {
+    console.log(response.data);
+  })
+  .catch((error) => {
+    console.error(error);
+  })
+  .finally(() => {
+    console.log("Request completed");
+  });
+  
   return (
     <>
-    <Form>
+    <Form onSubmit={onSubmit}>
       <Form.Group className="mb-3" controlId="name">
         <Form.Label>글쓴이</Form.Label>
         <Form.Control type="text" name="name" placeholder="이름을 입력하세요" />
@@ -21,8 +41,8 @@ export default function Write() {
       </Form.Group>
     </Form>
     <div className="d-flex justify-content-end">
-                <Button variant="primary">입력</Button>
-                <Button variant="secondary">취소</Button>
+                <Button type="submit" variant="primary">입력</Button>
+                <Button type="submit" variant="secondary">취소</Button>
                 
       </div>
     </>
