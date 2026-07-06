@@ -10,6 +10,7 @@ export default function View({ handleModify }) {
     title: '',
     content: '',
     date: '',
+    image_path: '',
   });
   const [isError, setIsError] = useState(false);
 
@@ -31,6 +32,7 @@ export default function View({ handleModify }) {
           title: data.title,
           content: data.content,
           date: data.date,
+          image_path: data.image_path,
         });
       })
       .catch(error => {
@@ -64,10 +66,15 @@ export default function View({ handleModify }) {
       </div>
       <hr />
       <p>{content.content}</p>
+      {content.image_path && (
+        <img src={`http:localhost:3000/${content.image_path .replaceAll("\\", "/")}`}
+        alt="image"
+        style={{ width: "300" }} />
+      )}
       <hr />
       <div className="d-flex gap-1 justify-content-end">
         <Link to="/" className="btn btn-primary">
-          목록
+          홈
         </Link>
         <Button variant="secondary" onClick={handleClick}>
           수정

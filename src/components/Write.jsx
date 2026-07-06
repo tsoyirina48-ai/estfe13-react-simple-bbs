@@ -5,40 +5,52 @@ import axios from "axios";
 import { useNavigate } from "react-router";
 
 export default function Write({ isModifyMode, boardId, handleCancel }) {
-  const navigate = useNavigate();
+
+  let navigate = useNavigate();
+ 
   const [content, setContent] = useState({
     name: '',
     title: '',
     content: '',
+    image: null,
   });
+  const [removeImage, setRemoveImage] = useState(false); //기존이미지 삭제 여부
 
   useEffect(() => {
-    if (!isModifyMode || !boardId) return;
+    if (isModifyMode || boardId) {
 
     axios
       .get(`http://localhost:3000/view?id=${boardId}`)
       .then(response => {
+        console.log(response.data);
         if (!response.data || response.data.length === 0) {
-          alert("글을 찾을 수 없습니다.");
-          navigate("/");
+         setIsError(true);
           return;
         }
 
         const data = response.data[0];
+
         setContent({
           name: data.writer,
           title: data.title,
           content: data.content,
+          date: data.date,
+           image_path: data.image_path || "", //기존 이미지
+            image: null, //새 이미지
+
         });
       })
       .catch(error => {
         console.error(error);
-        alert("글을 불러오지 못했습니다.");
-        navigate("/");
+        setIsError(true);
+      })
+      .finally(() => {
+        console.log("요청완료");
       });
-  }, [isModifyMode, boardId, navigate]);
+    }
+  }, []);
 
-  const validate = e => {
+    const validate = e => {
     const name = e.target.name.value.trim();
     const title = e.target.title.value.trim();
     const content = e.target.content.value.trim();
@@ -54,44 +66,101 @@ export default function Write({ isModifyMode, boardId, handleCancel }) {
       content,
     };
   };
+  const createFormData = (validatedData, id) => {
+     const formData = new FormData();
+     formData.append("writer", validatedData.name);
+     formData.append("title", validatedData.title);
+     formData.append("content", validatedData.content);
+       if (id) {
+      formData.append("id", id);
+    }
+
+     if (content.image) {
+      formData.append("image", content.image);
+     }
+     if(removeImage) {
+      formData.append("remove_image","1");
+     }
+     return formData;
+    };
 
   const write = e => {
     e.preventDefault();
-    const formData = validate(e);
-    if (!formData) return;
+    const validatedData = validate(e);
+    if (!validatedData) return;
+
+    const formData = createFormData(validatedData);
 
     axios
-      .post("http://localhost:3000/write", formData)
+      .post("http://localhost:3000/write", formData, {
+        headers : { "Content-Type":"multipart/form-data" },
+      })
       .then(() => {
         navigate("/");
       })
       .catch(error => {
         console.error(error);
-      });
+      })
+      .finally(() => {});
   };
 
   const update = e => {
     e.preventDefault();
-    const formData = validate(e);
-    if (!formData) return;
+    const validatedData = validate(e);
+    console.log(validatedData);
+
+    if (!validatedData) return;
+
+    const formData = createFormData(validatedData,);
+    console.log(formDataData);
+    for (const [key, value] of formData.entries()) {
+     console.log(key, value);
+    }
 
     axios
-      .post("http://localhost:3000/update", {
-        ...formData,
-        id: boardId,
-      })
+      .post("http://localhost:3000/update",
+      formData,
+       
+      {
+        headers : { "Content-Type":"multipart/form-data" },
+      }
+    )
       .then(() => {
         handleCancel();
         navigate("/");
       })
       .catch(error => {
         console.error(error);
-      });
+      })
+      .finally(() => {});
   };
 
   const handleClick = () => {
     handleCancel();
     navigate("/");
+  };
+
+  const handleImageChange = (e) => {
+    
+     const file = e.target.files[0];
+     setContent(prev=> ({ 
+         ...prev, 
+         image: file,
+}));
+  };
+
+  const handleDelete = () => {
+    axios
+      .post("http://localhost:3000/delete", {
+        id: boardId,
+      })
+      .then(() => {
+        handleCancel();
+        navigate("/");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   return (
@@ -105,6 +174,7 @@ export default function Write({ isModifyMode, boardId, handleCancel }) {
             name="name"
             defaultValue={content.name}
             placeholder="이름을 입력하세요"
+            required
           />
         </Form.Group>
         <Form.Group className="mb-3" controlId="title">
@@ -114,6 +184,7 @@ export default function Write({ isModifyMode, boardId, handleCancel }) {
             name="title"
             defaultValue={content.title}
             placeholder="제목을 입력하세요"
+            required
           />
         </Form.Group>
         <Form.Group className="mb-3" controlId="content">
@@ -123,15 +194,47 @@ export default function Write({ isModifyMode, boardId, handleCancel }) {
             name="content"
             defaultValue={content.content}
             rows={3}
+            required
           />
         </Form.Group>
+
+           <Form.Group controlId="formFile" className="mb-3">
+        <Form.Label>이미지 첨부</Form.Label>
+        <Form.Control 
+        type="file" 
+        accept="image/*" 
+        onChange={handleImageChange}
+         />
+      </Form.Group>
+      {content.image_path && (
+          <div>
+            <img
+              src={`http://localhost:3000/${content.image_path}`}
+              alt={content.title}
+              style={{ maxWidth: "200px" }}
+            />
+            <Form.Check // prettier-ignore
+              type="checkbox"
+              id={`default-check`}
+              label="기존이미지 제거"
+              onChange={e => {
+                setRemoveImage(e.target.checked);
+              }}
+            />
+          </div>
+        )}
+
+
         <div className="d-flex gap-1 justify-content-end">
           <Button type="submit" variant="primary">
-            {isModifyMode ? "수정" : "입력"}
+           입력
           </Button>
-          <Button type="button" variant="secondary" onClick={handleClick}>
+          <Button variant="secondary" onClick={handleClick}>
             취소
           </Button>
+          {isModifyMode && (
+            <Button variant = "danger" onClick={handleDelete}>삭제</Button>
+          )}
         </div>
       </Form>
     </>
