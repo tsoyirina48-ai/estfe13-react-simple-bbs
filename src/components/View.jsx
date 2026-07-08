@@ -3,6 +3,8 @@ import axios from "axios";
 import { useState, useEffect } from 'react';
 import { Link, useParams } from "react-router";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function View({ handleModify }) {
   const [content, setContent] = useState({
     id: '',
@@ -18,7 +20,7 @@ export default function View({ handleModify }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3000/view?id=${id}`)
+      .get(`${API_URL}/view?id=${id}`)
       .then(response => {
         if (!response.data || response.data.length === 0) {
           setIsError(true);
@@ -67,7 +69,7 @@ export default function View({ handleModify }) {
       <hr />
       <p>{content.content}</p>
       {content.image_path && (
-        <img src={`http:localhost:3000/${content.image_path .replaceAll("\\", "/")}`}
+        <img src={`${API_URL}/${content.image_path .replaceAll("\\", "/")}`}
         alt="image"
         style={{ width: "300" }} />
       )}

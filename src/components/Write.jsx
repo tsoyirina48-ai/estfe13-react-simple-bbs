@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import axios from "axios";
 import { useNavigate } from "react-router";
 
+const API_URL = import.meta.env.VITE_API_URL;
+console.log("API_URL:", API_URL);
+
 export default function Write({ isModifyMode, boardId, handleCancel }) {
 
   let navigate = useNavigate();
@@ -20,7 +23,7 @@ export default function Write({ isModifyMode, boardId, handleCancel }) {
     if (isModifyMode || boardId) {
 
     axios
-      .get(`http://localhost:3000/view?id=${boardId}`)
+      .get(`${API_URL}/view?id=${boardId}`)
       .then(response => {
         console.log(response.data);
         if (!response.data || response.data.length === 0) {
@@ -92,7 +95,7 @@ export default function Write({ isModifyMode, boardId, handleCancel }) {
     const formData = createFormData(validatedData);
 
     axios
-      .post("http://localhost:3000/write", formData, {
+      .post(`${API_URL}/write`, formData, {
         headers : { "Content-Type":"multipart/form-data" },
       })
       .then(() => {
@@ -112,13 +115,13 @@ export default function Write({ isModifyMode, boardId, handleCancel }) {
     if (!validatedData) return;
 
     const formData = createFormData(validatedData,);
-    console.log(formDataData);
+    console.log(formData);
     for (const [key, value] of formData.entries()) {
      console.log(key, value);
     }
 
     axios
-      .post("http://localhost:3000/update",
+      .post(`${API_URL}/update`,
       formData,
        
       {
@@ -151,7 +154,7 @@ export default function Write({ isModifyMode, boardId, handleCancel }) {
 
   const handleDelete = () => {
     axios
-      .post("http://localhost:3000/delete", {
+      .post(`${API_URL}/delete`, {
         id: boardId,
       })
       .then(() => {
@@ -209,7 +212,7 @@ export default function Write({ isModifyMode, boardId, handleCancel }) {
       {content.image_path && (
           <div>
             <img
-              src={`http://localhost:3000/${content.image_path}`}
+              src={`${API_URL}/${content.image_path}`}
               alt={content.title}
               style={{ maxWidth: "200px" }}
             />
