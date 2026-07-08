@@ -212,7 +212,7 @@ export default function Write({ isModifyMode, boardId, handleCancel }) {
       {content.image_path && (
           <div>
             <img
-              src={`${API_URL}/${content.image_path}`}
+              src={`/${content.image_path}`}
               alt={content.title}
               style={{ maxWidth: "200px" }}
             />
