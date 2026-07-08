@@ -69,7 +69,7 @@ export default function View({ handleModify }) {
       <hr />
       <p>{content.content}</p>
       {content.image_path && (
-        <img src={`/${content.image_path .replaceAll("\\", "/")}`}
+        <img src={`${content.image_path .replaceAll("\\", "/")}`}
         alt="image"
         style={{ width: "300" }} />
       )}
